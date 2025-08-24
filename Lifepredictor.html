@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Life Predictor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&family=Pacifico&family=Roboto+Slab&display=swap');
+
+  /* DARK BACKGROUND THEME */
+  body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: #0a0a0a;
+    background-image: url('https://www.shutterstock.com/image-vector/wheel-twelve-signs-zodiac-night-260nw-1548400775.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #f0f0f0;
+    user-select: none;
+    min-height: 100vh;
+  }
+  
+  /* Add overlay to make text more readable */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+  }
+
+  #app {
+    max-width: 700px;
+    margin: 40px auto;
+    background: rgba(15, 15, 15, 0.9);
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 8px 35px rgba(0, 255, 255, 0.3);
+  }
+
+  h1, h2 {
+    font-family: 'Pacifico', cursive;
+    text-align: center;
+    text-shadow: 2px 2px 8px rgba(0,255,255,0.6);
+    margin-bottom: 25px;
+  }
+
+  label {
+    font-weight: 700;
+    font-family: 'Roboto Slab', serif;
+    display: block;
+    margin: 12px 0 5px;
+    color: #00fff7cc;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+    padding: 10px 12px;
+    font-size: 1rem;
+    color: #111;
+    font-weight: 600;
+    font-family: 'Roboto Slab', serif;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    outline: none;
+    box-shadow: 0 0 8px 3px #00fff7cc;
+  }
+
+  .slider-container {
+    margin: 15px 0 25px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+
+  .hobbies-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hobbies-container label {
+    background: #0099ffcc;
+    color: #fff;
+    padding: 7px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+    transition: background 0.3s ease;
+    font-family: 'Roboto Slab', serif;
+  }
+
+  .hobbies-container input[type="checkbox"] {
+    display: none;
+  }
+
+  .hobbies-container input[type="checkbox"]:checked + label {
+    background: #00ffe5cc;
+    color: #000;
+    font-weight: 800;
+  }
+
+  /* Food quality radio buttons */
+  .food-quality-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+  }
+
+  .food-quality-container label {
+    background: #007777cc;
+    color: #eee;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    user-select: none;
+    font-family: 'Roboto Slab', serif;
+    transition: background 0.3s ease;
+  }
+
+  .food-quality-container input[type="radio"] {
+    display: none;
+  }
+
+  .food-quality-container input[type="radio"]:checked + label {
+    background: #00ffe5cc;
+    color: #000;
+    font-weight: 900;
+  }
+
+  .avatar-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 10px;
+  }
+
+  .avatar-container input[type="radio"] {
+    display: none;
+  }
+
+  .avatar-container label {
+    cursor: pointer;
+    border-radius: 15px;
+    padding: 8px 12px;
+    border: 3px solid transparent;
+    transition: border-color 0.3s ease;
+    font-size: 3rem;
+    line-height: 1;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255 255 255 / 0.1);
+  }
+
+  .avatar-container input[type="radio"]:checked + label {
+    border-color: #00fff7;
+    filter: drop-shadow(0 0 15px #00fff7cc);
+    background: #00ffe533;
+  }
+
+  /* Gender radio buttons */
+  .gender-container {
+    display: flex;
+    gap: 25px;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  .gender-container label {
+    background: #005555cc;
+    color: #eee;
+    padding: 8px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    user-select: none;
+    font-family: 'Roboto Slab', serif;
+    transition: background 0.3s ease;
+  }
+
+  .gender-container input[type="radio"] {
+    display: none;
+  }
+
+  .gender-container input[type="radio"]:checked + label {
+    background: #00ffffcc;
+    color: #000;
+    font-weight: 900;
+  }
+
+  /* Buttons */
+  button {
+    width: 100%;
+    padding: 14px 0;
+    font-size: 1.3rem;
+    font-family: 'Pacifico', cursive;
+    background: linear-gradient(45deg, #00fff7cc, #009999cc);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 5px 15px #00fff7bb;
+    transition: background 0.3s ease;
+    user-select: none;
+    margin-top: 15px;
+  }
+
+  button:hover:not(:disabled) {
+    background: linear-gradient(45deg, #00cccc, #006666);
+    color: #fff;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  #userDetails {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    background: rgba(25, 25, 25, 0.85);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    user-select: text;
+    font-family: 'Roboto Slab', serif;
+  }
+
+  #predictionResult {
+    text-align: center;
+    margin-top: 20px;
+    position: relative;
+  }
+
+  .character-container {
+    position: relative;
+    margin-bottom: 35px;
+    height: 220px;
+    background: #0a0000;
+    border-radius: 15px;
+    padding: 15px 0;
+  }
+
+  .character-alive {
+    width: 110px;
+    height: 180px;
+    position: absolute;
+    bottom: 30px;
+    transition: left 1s ease, opacity 0.5s ease, transform 0.7s ease;
+    user-select: none;
+    filter: drop-shadow(0 0 6px #00fff7bb);
+    font-size: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Improved coffin box - more rectangular like first image */
+  .coffin-box {
+    position: absolute;
+    right: 50px;
+    bottom: 30px;
+    width: 200px;
+    height: 140px;
+    background: linear-gradient(135deg, #8B4513 0%, #654321 30%, #3D2B1F 70%, #2F1B14 100%);
+    border-radius: 8px;
+    box-shadow:
+      inset 0 0 20px rgba(0,0,0,0.4),
+      inset 0 2px 0 rgba(139, 69, 19, 0.6),
+      0 5px 15px rgba(0,0,0,0.8);
+    border: 3px solid #654321;
+    overflow: hidden;
+  }
+
+  .coffin-lid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35px;
+    background: linear-gradient(90deg, #A0522D 0%, #8B4513 50%, #654321 100%);
+    box-shadow: 
+      inset 0 1px 0 rgba(160, 82, 45, 0.8),
+      0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .coffin-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 105px;
+    background: linear-gradient(180deg, #654321 0%, #3D2B1F 50%, #2F1B14 100%);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+  }
+
+  /* Character lying inside coffin */
+  .character-in-coffin {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5.5rem;
+    opacity: 0.7;
+    filter: grayscale(50%) brightness(0.8);
+    user-select: none;
+    color: #E0E0E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .result-slider {
+    width: 90%;
+    margin: 20px auto 0 auto;
+    display: block;
+    accent-color: #00ffe5cc;
+    cursor: default;
+  }
+
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #ccc;
+    font-family: 'Roboto Slab', serif;
+  }
+
+  .highlight {
+    color: #00ffe5cc;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div id="app">
+    <div id="page1">
+      <h1>Life Predictor</h1>
+      <form id="lifeForm">
+        <label for="nameInput">Name <span style="color:#f00;">*</span></label>
+        <input type="text" id="nameInput" required placeholder="Enter your name" />
+
+        <label for="foodInput">Favorite Food <span style="color:#f00;">*</span></label>
+        <input type="text" id="foodInput" required placeholder="Enter your favorite food" />
+
+        <label>Food Quality Option <span style="color:#f00;">*</span></label>
+        <div class="food-quality-container" aria-label="Food quality options">
+          <input type="radio" id="foodHealthy" name="foodQuality" value="Healthy" checked />
+          <label for="foodHealthy">Healthy</label>
+          <input type="radio" id="foodBalanced" name="foodQuality" value="Balanced" />
+          <label for="foodBalanced">Balanced</label>
+          <input type="radio" id="foodJunk" name="foodQuality" value="Junk" />
+          <label for="foodJunk">Junk</label>
+        </div>
+
+        <label for="ageInput">Age <span style="color:#f00;">*</span></label>
+        <input type="number" id="ageInput" min="1" max="120" required placeholder="Enter your age" />
+
+        <label>Gender <span style="color:#f00;">*</span></label>
+        <div class="gender-container" role="radiogroup" aria-label="Gender selection">
+          <input type="radio" id="genderMale" name="gender" value="male" checked />
+          <label for="genderMale" aria-label="Male">Male ♂️</label>
+          <input type="radio" id="genderFemale" name="gender" value="female" />
+          <label for="genderFemale" aria-label="Female">Female ♀️</label>
+        </div>
+
+        <div class="slider-container">
+          <label for="sleepSlider">Sleep Hours: <span id="sleepValue">8</span> hrs</label>
+          <input type="range" min="0" max="12" step="0.5" value="8" id="sleepSlider" />
+        </div>
+
+        <label>Hobbies (Select any):</label>
+        <div class="hobbies-container">
+          <input type="checkbox" id="hobbyReading" value="Reading" />
+          <label for="hobbyReading">Reading</label>
+
+          <input type="checkbox" id="hobbySports" value="Sports" />
+          <label for="hobbySports">Sports</label>
+
+          <input type="checkbox" id="hobbyMusic" value="Music" />
+          <label for="hobbyMusic">Music</label>
+
+          <input type="checkbox" id="hobbyTravel" value="Travel" />
+          <label for="hobbyTravel">Travel</label>
+
+          <input type="checkbox" id="hobbyGaming" value="Gaming" />
+          <label for="hobbyGaming">Gaming</label>
+
+          <input type="checkbox" id="hobbyCooking" value="Cooking" />
+          <label for="hobbyCooking">Cooking</label>
+        </div>
+
+        <label>Choose Your Avatar:</label>
+        <div class="avatar-container" role="radiogroup" aria-label="Avatar selection">
+          <input type="radio" id="avatarStudent" name="avatar" value="student" checked />
+          <label for="avatarStudent" title="Student" aria-label="Student emoji">🎓</label>
+
+          <input type="radio" id="avatarProfessional" name="avatar" value="professional" />
+          <label for="avatarProfessional" title="Professional" aria-label="Briefcase emoji">💼</label>
+
+          <input type="radio" id="avatarEngineer" name="avatar" value="engineer" />
+          <label for="avatarEngineer" title="Engineer" aria-label="Helmet emoji">👷‍♂️</label>
+
+          <input type="radio" id="avatarDoctor" name="avatar" value="doctor" />
+          <label for="avatarDoctor" title="Doctor" aria-label="Stethoscope emoji">🩺</label>
+
+          <input type="radio" id="avatarArtist" name="avatar" value="artist" />
+          <label for="avatarArtist" title="Artist" aria-label="Palette emoji">🎨</label>
+        </div>
+
+        <label for="activityLevel">Activity Level:</label>
+        <select id="activityLevel">
+          <option value="Sedentary">Sedentary (Little or no exercise)</option>
+          <option value="Lightly Active">Lightly Active (Light exercise/sports 1-3 days/week)</option>
+          <option value="Moderate">Moderate (Moderate exercise/sports 3-5 days/week)</option>
+          <option value="Very Active">Very Active (Hard exercise/sports 6-7 days/week)</option>
+          <option value="Extra Active">Extra Active (Very hard exercise & physical job)</option>
+        </select>
+
+        <br /><br />
+        <button type="submit">Predict My Life</button>
+      </form>
+    </div>
+
+    <div id="page2" style="display:none;">
+      <h2>Your Details</h2>
+      <div id="userDetails"></div>
+      <button id="revealBtn">Reveal My Life Prediction</button>
+      <button id="startOverBtn" style="margin-top: 15px; display:none;">Start Over</button>
+
+      <div id="predictionResult" style="display:none;">
+      </div>
+    </div>
+  </div>
+
+<script>
+  const sleepSlider = document.getElementById('sleepSlider');
+  const sleepValue = document.getElementById('sleepValue');
+  sleepValue.textContent = sleepSlider.value;
+
+  sleepSlider.addEventListener('input', () => {
+    sleepValue.textContent = sleepSlider.value;
+  });
+
+  const lifeForm = document.getElementById('lifeForm');
+  const page1 = document.getElementById('page1');
+  const page2 = document.getElementById('page2');
+  const userDetailsDiv = document.getElementById('userDetails');
+  const revealBtn = document.getElementById('revealBtn');
+  const startOverBtn = document.getElementById('startOverBtn');
+  const predictionResult = document.getElementById('predictionResult');
+
+  const emojis = {
+    student: "🎓",
+    professional: "💼",
+    engineer: "👷‍♂️",
+    doctor: "🩺",
+    artist: "🎨"
+  };
+
+  let userData = {};
+
+  lifeForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById('nameInput').value.trim();
+    const food = document.getElementById('foodInput').value.trim();
+    const age = parseInt(document.getElementById('ageInput').value);
+
+    if (!name || !food || isNaN(age) || age < 1 || age > 120) {
+      alert('Please provide valid mandatory inputs.');
+      return;
+    }
+
+    const sleepHours = parseFloat(sleepSlider.value);
+
+    const hobbiesChecked = [...document.querySelectorAll('.hobbies-container input[type="checkbox"]:checked')].map(el => el.value);
+
+    const avatarValue = document.querySelector('.avatar-container input[type="radio"]:checked').value;
+
+    const foodQualityValue = document.querySelector('input[name="foodQuality"]:checked').value;
+
+    const genderValue = document.querySelector('input[name="gender"]:checked').value;
+
+    const activityLevel = document.getElementById('activityLevel').value;
+
+    userData = {
+      name,
+      food,
+      age,
+      sleepHours,
+      hobbiesChecked,
+      avatarValue,
+      activityLevel,
+      foodQualityValue,
+      genderValue
+    };
+
+    const hobbiesText = hobbiesChecked.length ? userData.hobbiesChecked.join(', ') : 'None';
+
+    userDetailsDiv.innerHTML = `
+      <p><strong>Name:</strong> <span class="highlight">${name}</span></p>
+      <p><strong>Favorite Food:</strong> <span class="highlight">${food}</span></p>
+      <p><strong>Food Quality:</strong> <span class="highlight">${foodQualityValue}</span></p>
+      <p><strong>Age:</strong> <span class="highlight">${age}</span> years</p>
+      <p><strong>Gender:</strong> <span class="highlight">${genderValue.charAt(0).toUpperCase() + genderValue.slice(1)}</span></p>
+      <p><strong>Sleep Hours:</strong> <span class="highlight">${sleepHours} hrs</span></p>
+      <p><strong>Hobbies:</strong> <span class="highlight">${hobbiesText}</span></p>
+      <p><strong>Activity Level:</strong> <span class="highlight">${activityLevel}</span></p>
+      <p><strong>Selected Avatar:</strong> <span style="font-size:3rem;">${emojis[userData.avatarValue]}</span></p>
+    `;
+
+    page1.style.display = 'none';
+    page2.style.display = 'block';
+
+    predictionResult.style.display = 'none';
+    predictionResult.innerHTML = '';
+    revealBtn.disabled = false;
+    revealBtn.style.display = 'inline-block';
+    revealBtn.textContent = "Reveal My Life Prediction";
+
+    startOverBtn.style.display = 'none';
+  });
+
+  revealBtn.addEventListener('click', () => {
+    predictionResult.style.display = 'block';
+    predictionResult.innerHTML = '';
+
+    let baseLifeExpectancy = 80;
+
+    switch(userData.activityLevel) {
+      case 'Sedentary': baseLifeExpectancy -= 12; break;
+      case 'Lightly Active': baseLifeExpectancy -= 5; break;
+      case 'Moderate': baseLifeExpectancy += 0; break;
+      case 'Very Active': baseLifeExpectancy += 5; break;
+      case 'Extra Active': baseLifeExpectancy += 8; break;
+    }
+
+    if(userData.sleepHours < 5) baseLifeExpectancy -= 8;
+    else if(userData.sleepHours >= 5 && userData.sleepHours < 7) baseLifeExpectancy -= 3;
+    else if(userData.sleepHours > 9) baseLifeExpectancy -= 5;
+
+    baseLifeExpectancy += userData.hobbiesChecked.length;
+
+    switch(userData.foodQualityValue) {
+      case 'Healthy': baseLifeExpectancy += 5; break;
+      case 'Balanced': baseLifeExpectancy += 2; break;
+      case 'Junk': baseLifeExpectancy -= 6; break;
+    }
+
+    let remainingYears = baseLifeExpectancy - userData.age;
+
+    const unhealthyFoods = ['burger', 'pizza', 'fried', 'soda', 'candy', 'junk', 'chips'];
+    const foodLower = userData.food.toLowerCase();
+    if(unhealthyFoods.some(w => foodLower.includes(w)) && userData.foodQualityValue !== 'Junk') {
+      remainingYears -= 3;
+    }
+
+    if(remainingYears < -5) remainingYears = -5;
+    remainingYears = Math.round(remainingYears);
+
+    const container = document.createElement('div');
+    const charContainer = document.createElement('div');
+    charContainer.className = 'character-container';
+
+    const lifeSlider = document.createElement('input');
+    lifeSlider.type = 'range';
+    lifeSlider.min = '0';
+    lifeSlider.max = baseLifeExpectancy.toString();
+    lifeSlider.value = remainingYears > 0 ? remainingYears : 0;
+    lifeSlider.disabled = true;
+    lifeSlider.className = 'result-slider';
+
+    const genderFullChar = userData.genderValue === 'female' ? '👩' : '👨';
+
+    if(remainingYears > 0) {
+      container.innerHTML = `
+        <h3 style="color:#eee; font-weight:700; text-align: center; margin-bottom: 20px; font-family: 'Pacifico', cursive;">
+        🥩 Your Life Journey 🥩
+        </h3>
+      `;
+
+      const character = document.createElement('div');
+      character.className = 'character-alive';
+      character.textContent = genderFullChar;
+
+      const sliderWidthPx = 0.9 * 700;
+      let leftPx = (remainingYears / baseLifeExpectancy) * sliderWidthPx;
+      const maxLeft = sliderWidthPx - 80;
+      if (leftPx > maxLeft) leftPx = maxLeft;
+      if (leftPx < 0) leftPx = 0;
+      character.style.left = leftPx + 'px';
+
+      charContainer.appendChild(character);
+      charContainer.appendChild(lifeSlider);
+      container.appendChild(charContainer);
+
+      // Add the years display information
+      const yearsInfo = document.createElement('div');
+      yearsInfo.style.cssText = `
+        background: rgba(0, 255, 255, 0.1); 
+        border: 2px solid #00fff7; 
+        border-radius: 15px; 
+        padding: 20px; 
+        margin: 20px 0; 
+        text-align: center;
+      `;
+      yearsInfo.innerHTML = `
+        <h4 style="color: #00ffe5; font-family: 'Roboto Slab', serif; margin: 0 0 10px 0;">🎉 Good News! 🎉</h4>
+        <p style="font-size: 1.4rem; color: #00fff7; font-weight: bold; margin: 0; font-family: 'Orbitron', sans-serif;">
+          You have approximately <span style="color: #00ffe5; font-size: 1.6rem;">${remainingYears} more years</span> to live!
+        </p>
+        <p style="font-size: 1rem; color: #ccc; margin: 10px 0 0 0; font-family: 'Roboto Slab', serif;">
+          Expected lifespan: ${baseLifeExpectancy} years
+        </p>
+      `;
+      container.appendChild(yearsInfo);
+
+    } else {
+      container.innerHTML = `
+        <h3 style="color:#ff4c4c; font-weight:700; text-align:center; font-family: 'Roboto Slab', serif; margin-bottom: 15px;">
+          <span style="font-size: 1.7rem;">💀</span> Your time is up!
+        </h3>
+      `;
+
+      const coffinBox = document.createElement('div');
+      coffinBox.className = 'coffin-box';
+
+      const coffinLid = document.createElement('div');
+      coffinLid.className = 'coffin-lid';
+      const coffinBody = document.createElement('div');
+      coffinBody.className = 'coffin-body';
+      coffinBox.appendChild(coffinLid);
+      coffinBox.appendChild(coffinBody);
+
+      const charInCoffin = document.createElement('div');
+      charInCoffin.className = 'character-in-coffin';
+      charInCoffin.textContent = genderFullChar;
+      coffinBox.appendChild(charInCoffin);
+
+      charContainer.appendChild(lifeSlider);
+      charContainer.appendChild(coffinBox);
+
+      container.appendChild(charContainer);
+    }
+
+    predictionResult.appendChild(container);
+    predictionResult.scrollIntoView({ behavior: 'smooth' });
+
+    revealBtn.disabled = true;
+    revealBtn.style.cursor = 'not-allowed';
+    revealBtn.textContent = "Prediction Revealed";
+
+    startOverBtn.style.display = 'inline-block';
+  });
+
+  startOverBtn.addEventListener('click', () => {
+    lifeForm.reset();
+    sleepValue.textContent = '8';
+    page2.style.display = 'none';
+    page1.style.display = 'block';
+    predictionResult.innerHTML = '';
+    predictionResult.style.display = 'none';
+    revealBtn.disabled = false;
+    revealBtn.style.cursor = 'pointer';
+    revealBtn.textContent = "Reveal My Life Prediction";
+    startOverBtn.style.display = 'none';
+    userData = {};
+  });
+</script>
+
+<footer>
+  &copy; 2025 Life Predictor &mdash; Have fun with the predictions!
+</footer>
+</body>
+</html>
